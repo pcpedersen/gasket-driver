@@ -24,8 +24,11 @@ jobs:
       - name: Build debian package
         run: debuild -us -uc -tc -b
 
+      - name: Move .deb file locally
+        run: mv ../*.deb ./
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: gasket-deb-${{ github.run_number }}
-          path: ../*.deb
+          path: ./*.deb
