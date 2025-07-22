@@ -15,8 +15,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         
-      - name: Install debuild
-        run: sudo apt-get update && sudo apt-get install -y build-essential debhelper dkms devscripts
+      - name: Install build dependencies from control file
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y equivs devscripts
+          mk-build-deps -i -r -t "apt-get -y" debian/control
         
       - name: Build debian package
         run: debuild -us -uc -tc -b
