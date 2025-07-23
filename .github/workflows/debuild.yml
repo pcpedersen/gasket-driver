@@ -15,6 +15,7 @@ jobs:
       - name: Decode and inspect GPG key
         env:
           PRIVATE_GPG_KEY: ${{ secrets.PRIVATE_GPG_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           echo "$PRIVATE_GPG_KEY" | base64 --decode > private.key
       
@@ -26,6 +27,15 @@ jobs:
       
           echo "🔍 Attempting import:"
           gpg --batch --import private.key
+
+          # Export public and secret keys to files used by sign-file
+          gpg --batch --yes --pinentry-mode loopback --passphrase=$GPG_PASSPHRASE \
+              --export > signing_key.pub
+      
+          gpg --batch --yes --pinentry-mode loopback --passphrase=$GPG_PASSPHRASE \
+              --export-secret-keys > signing_key.sec
+
+          echo "🔐 Exported signing_key.pub and signing_key.sec"
       
       - name: Checkout code
         uses: actions/checkout@v4
