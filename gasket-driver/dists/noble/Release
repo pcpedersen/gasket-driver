@@ -1,0 +1,20 @@
+Origin: pcpedersen
+Label: Gasket DKMS Driver
+Suite: stable
+Codename: noble
+Date: Wed, 23 Jul 2025 05:13:20 UTC
+Architectures: amd64
+Components: main
+Description: DKMS source driver for Coral Gasket hosted on GitHub
+MD5Sum:
+ dbb0edd70558406a2747e20c0529fbb5 718 main/binary-amd64/Packages
+ b5c0abf103c2e4435bc9c5143a59e0da 492 main/binary-amd64/Packages.gz
+ 5bc2dadd0909c6cdba43446b939e6918 163 main/binary-amd64/Release
+SHA1:
+ fba5cb29a31b8b422af0e47d115bca024b835d99 718 main/binary-amd64/Packages
+ 8d8e755d207cb9eedf43e3924c04ab3dd3e2611d 492 main/binary-amd64/Packages.gz
+ a02bc2e0b0168f489214a7bf6d0fb40481c52b0b 163 main/binary-amd64/Release
+SHA256:
+ 363a86ad2cbf5f1cebe980b3c4628bc5c88531b657185a546fbaf7713e9f8ad4 718 main/binary-amd64/Packages
+ 2980b4628fedd499db257c4f9974ddbdcb301289554931b9179796daab021c26 492 main/binary-amd64/Packages.gz
+ 88cc161df597a9a5a5d80e807d302187369138d8a231bf54c718fc032ed403ce 163 main/binary-amd64/Release
