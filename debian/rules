@@ -5,34 +5,34 @@ include /usr/share/dpkg/pkg-info.mk
 export GPG_PASSPHRASE
 
 %:
-    dh $@ --with dkms
+	dh $@ --with dkms
 
 override_dh_auto_configure:
 
 override_dh_auto_build:
-    # Explicit kernel module build
-    $(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(CURDIR)/src modules
-    # Signing each .ko module individually
-    @for KMOD in $(CURDIR)/src/*.ko; do \
-        if [ -f "$$KMOD" ]; then \
-            echo "🔏 Signing module $$KMOD"; \
-            gpg --batch --yes --passphrase=$(GPG_PASSPHRASE) --pinentry-mode loopback --export > signing_key.pub; \
-            gpg --batch --yes --passphrase=$(GPG_PASSPHRASE) --pinentry-mode loopback --export-secret-keys > signing_key.sec; \
-            /usr/src/linux-headers-$(shell uname -r)/scripts/sign-file sha256 signing_key.sec signing_key.pub $$KMOD; \
-        else \
-            echo "⚠️ Module not found: $$KMOD"; \
-        fi; \
-    done
+	# Explicit kernel module build
+	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(CURDIR)/src modules
+	# Signing each .ko module individually
+	@for KMOD in $(CURDIR)/src/*.ko; do \
+		if [ -f "$$KMOD" ]; then \
+			echo "🔏 Signing module $$KMOD"; \
+			gpg --batch --yes --passphrase=$(GPG_PASSPHRASE) --pinentry-mode loopback --export > signing_key.pub; \
+			gpg --batch --yes --passphrase=$(GPG_PASSPHRASE) --pinentry-mode loopback --export-secret-keys > signing_key.sec; \
+			/usr/src/linux-headers-$(shell uname -r)/scripts/sign-file sha256 signing_key.sec signing_key.pub $$KMOD; \
+		else \
+			echo "⚠️ Module not found: $$KMOD"; \
+		fi; \
+	done
 
 override_dh_auto_clean:
-    $(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(CURDIR)/src clean
+	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(CURDIR)/src clean
 
 override_dh_auto_test:
 
 override_dh_auto_install:
 
 override_dh_install:
-    dh_install src/* usr/src/gasket-$(DEB_VERSION_UPSTREAM)/
+	dh_install src/* usr/src/gasket-$(DEB_VERSION_UPSTREAM)/
 
 override_dh_dkms:
-    dh_dkms -V $(DEB_VERSION_UPSTREAM)
+	dh_dkms -V $(DEB_VERSION_UPSTREAM)
