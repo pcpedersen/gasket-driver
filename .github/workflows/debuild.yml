@@ -20,7 +20,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y equivs devscripts dpkg-sig
           mk-build-deps --install --root-cmd sudo --tool "apt-get -y" debian/control
-        
+
+      - name: Download and install dpkg-sig
+        run: |
+          wget http://archive.ubuntu.com/ubuntu/pool/universe/d/dpkg-sig/dpkg-sig_0.20_all.deb
+          sudo apt install ./dpkg-sig_0.20_all.deb
+          rm ./dpkg-sig_0.20_all.deb
+
       - name: Build debian package
         run: debuild -us -uc -tc -b
 
