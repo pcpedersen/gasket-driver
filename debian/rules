@@ -15,7 +15,7 @@ override_dh_auto_build:
 	# Signing each .ko module individually
 	@for KMOD in $(CURDIR)/src/*.ko; do \
 		if [ -f "$$KMOD" ]; then \
-			if [ -f "signing_key.sec" ] && [ -f "signing_key.pub" ]; then \
+			if [ -f "$(CURDIR)signing_key.sec" ] && [ -f "$(CURDIR)signing_key.pub" ]; then \
 			    echo "🔏 Signing $$KMOD"; \
 			    /usr/src/linux-headers-$(shell uname -r)/scripts/sign-file sha256 signing_key.sec signing_key.pub $$KMOD; \
 			else \
