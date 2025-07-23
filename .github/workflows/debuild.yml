@@ -49,8 +49,9 @@ jobs:
         run: mv ../*.deb ./
 
       - name: Sign the .deb file
-        run: |
-          dpkg-sig --sign builder ./*.deb
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: dpkg-sig --sign builder --gpg-options "--batch --yes --passphrase=$GPG_PASSPHRASE --pinentry-mode loopback" ./*.deb
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
