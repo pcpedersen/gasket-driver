@@ -1,3 +1,9 @@
+gasket-dkms (1.0-19) noble; urgency=low
+
+  * Kernel patch for >= 6.8.
+
+ -- pcpedersen <admin@calped.net>  Wed, 23 Feb 2025 16:27:00 -0600
+
 gasket-dkms (1.0-18) unstable; urgency=low
 
   * Import DMA_BUF symbol namespace for kernels >= 5.16.
