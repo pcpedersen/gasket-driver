@@ -17,16 +17,15 @@ jobs:
         
       - name: Install build dependencies from control file
         run: |
-          sudo add-apt-repository universe
           sudo apt-get update
-          sudo apt-get install -y equivs devscripts dpkg-sig
+          sudo apt-get install -y equivs devscripts
           mk-build-deps --install --root-cmd sudo --tool "apt-get -y" debian/control
 
-      #- name: Download and install dpkg-sig
-      #  run: |
-      #    wget http://archive.ubuntu.com/ubuntu/pool/universe/d/dpkg-sig/dpkg-sig_0.20_all.deb
-      #   sudo apt install ./dpkg-sig_0.20_all.deb
-      #    rm ./dpkg-sig_0.20_all.deb
+      - name: Download and install dpkg-sig
+        run: |
+          wget http://ftp.de.debian.org/debian/pool/main/d/dpkg-sig/dpkg-sig_0.13.1+nmu4_all.deb
+          sudo apt install ./dpkg-sig_0.13.1+nmu4_all.deb
+          rm ./dpkg-sig_0.13.1+nmu4_all.deb
 
       - name: Build debian package
         run: debuild -us -uc -tc -b
