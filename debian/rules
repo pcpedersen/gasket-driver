@@ -15,10 +15,12 @@ override_dh_auto_build:
 	# Signing each .ko module individually
 	@for KMOD in $(CURDIR)/src/*.ko; do \
 		if [ -f "$$KMOD" ]; then \
-			echo "🔏 Signing module $$KMOD"; \
-			gpg --batch --yes --passphrase=$(GPG_PASSPHRASE) --pinentry-mode loopback --export > signing_key.pub; \
-			gpg --batch --yes --passphrase=$(GPG_PASSPHRASE) --pinentry-mode loopback --export-secret-keys > signing_key.sec; \
-			/usr/src/linux-headers-$(shell uname -r)/scripts/sign-file sha256 signing_key.sec signing_key.pub $$KMOD; \
+			if [ -f "signing_key.sec" ] && [ -f "signing_key.pub" ]; then \
+			    echo "🔏 Signing $$KMOD"; \
+			    /usr/src/linux-headers-$(shell uname -r)/scripts/sign-file sha256 signing_key.sec signing_key.pub $$KMOD; \
+			else \
+			    echo "⚠️ Signing keys not found; skipping signing."; \
+			fi; \
 		else \
 			echo "⚠️ Module not found: $$KMOD"; \
 		fi; \
