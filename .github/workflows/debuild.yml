@@ -13,6 +13,8 @@ jobs:
 
     steps:
       - name: Decode and inspect GPG key
+        env:
+          PRIVATE_GPG_KEY: ${{ secrets.PRIVATE_GPG_KEY }}
         run: |
           echo "$PRIVATE_GPG_KEY" | base64 --decode > private.key
       
@@ -22,11 +24,8 @@ jobs:
           echo "🔍 File size:"
           stat --format="%s bytes" private.key
       
-          echo "🔍 GPG packet inspection:"
-          gpg --batch --list-packets private.key || echo "⚠️ GPG packet inspection failed"
-      
           echo "🔍 Attempting import:"
-          gpg --batch --import private.key || echo "⚠️ GPG import failed"
+          gpg --batch --import private.key
       
       - name: Checkout code
         uses: actions/checkout@v4
