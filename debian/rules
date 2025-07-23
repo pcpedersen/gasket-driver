@@ -2,6 +2,8 @@
 
 include /usr/share/dpkg/pkg-info.mk
 
+export GPG_PASSPHRASE
+
 %:
 	dh $@ --with dkms
 
@@ -13,6 +15,16 @@ override_dh_dkms:
 
 override_dh_auto_configure:
 override_dh_auto_build:
+	dh_auto_build
+	@KMOD=$(find . -name '*.ko'); \
+	if [ -n "$$KMOD" ]; then \
+		echo "🔏 Signing module $$KMOD"; \
+		gpg --batch --yes --passphrase=$(GPG_PASSPHRASE) --pinentry-mode loopback --export > signing_key.pub; \
+		gpg --batch --yes --passphrase=$(GPG_PASSPHRASE) --pinentry-mode loopback --export-secret-keys > signing_key.sec; \
+		/usr/src/linux-headers-$(shell uname -r)/scripts/sign-file sha256 signing_key.sec signing_key.pub $$KMOD; \
+	else \
+		echo "⚠️ No .ko module found to sign."; \
+	fi
 override_dh_auto_test:
 override_dh_auto_install:
 override_dh_auto_clean:
