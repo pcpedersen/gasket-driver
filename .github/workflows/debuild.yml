@@ -38,6 +38,10 @@ jobs:
               --export-secret-keys > signing_key.sec
 
           ls -l signing_key.pub signing_key.sec || echo "❌ Key files missing"
+
+          pwd
+
+          echo $HOME
       
       - name: Checkout code
         uses: actions/checkout@v4
