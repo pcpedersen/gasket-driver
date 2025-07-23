@@ -39,9 +39,10 @@ jobs:
 
           ls -l signing_key.pub signing_key.sec || echo "❌ Key files missing"
 
-          pwd
+          mv signing_key.pub $HOME/ 
+          mv signing_key.sec $HOME/ 
 
-          echo $HOME
+          ls -l $HOME/signing_key.pub $HOME/signing_key.sec || echo "❌ Key files not moved to home"
       
       - name: Checkout code
         uses: actions/checkout@v4
