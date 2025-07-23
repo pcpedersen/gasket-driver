@@ -18,7 +18,7 @@ jobs:
       - name: Install build dependencies from control file
         run: |
           sudo apt-get update
-          sudo apt-get install -y equivs devscripts
+          sudo apt-get install -y equivs devscripts dpkg-sig
           mk-build-deps --install --root-cmd sudo --tool "apt-get -y" debian/control
         
       - name: Build debian package
@@ -26,6 +26,15 @@ jobs:
 
       - name: Move .deb file locally
         run: mv ../*.deb ./
+
+      - name: Import GPG key
+        run: |
+          echo "$PRIVATE_GPG_KEY" | base64 --decode > private.key
+          gpg --batch --import private.key
+
+      - name: Sign the .deb file
+        run: |
+          dpkg-sig --sign builder ./*.deb
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
