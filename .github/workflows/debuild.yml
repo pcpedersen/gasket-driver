@@ -17,7 +17,7 @@ jobs:
         
       - name: Install build dependencies from control file
         run: |
-          add-apt-repository universe
+          sudo add-apt-repository universe
           sudo apt-get update
           sudo apt-get install -y equivs devscripts dpkg-sig
           mk-build-deps --install --root-cmd sudo --tool "apt-get -y" debian/control
