@@ -1,0 +1,6 @@
+Archive: stable
+Component: main
+Origin: pcpedersen
+Label: Gasket DKMS Driver
+Architecture: amd64
+Description: DKMS source driver for Coral Gasket hosted on GitHub

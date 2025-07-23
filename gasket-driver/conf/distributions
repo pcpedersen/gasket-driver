@@ -1,0 +1,7 @@
+Origin: pcpedersen
+Label: Gasket DKMS Driver
+Suite: stable
+Codename: noble
+Architectures: amd64
+Components: main
+Description: DKMS source driver for Coral Gasket hosted on GitHub
