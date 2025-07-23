@@ -12,6 +12,16 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
+      - name: Import GPG key
+        run: |
+          echo "$PRIVATE_GPG_KEY" | base64 --decode > private.key
+          echo "🔍 Checking key header:"
+          head -n 5 private.key
+      
+          echo "🔍 Running GPG validation:"
+          gpg --batch --list-packets private.key || echo "⚠️ GPG validation failed"
+          gpg --batch --import private.key
+      
       - name: Checkout code
         uses: actions/checkout@v4
         
@@ -32,11 +42,6 @@ jobs:
 
       - name: Move .deb file locally
         run: mv ../*.deb ./
-
-      - name: Import GPG key
-        run: |
-          echo "$PRIVATE_GPG_KEY" | base64 --decode > private.key
-          gpg --batch --import private.key
 
       - name: Sign the .deb file
         run: |
