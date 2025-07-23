@@ -28,14 +28,16 @@ jobs:
           echo "🔍 Attempting import:"
           gpg --batch --import private.key
 
+          echo "🔐 Export public key to file used by sign-file"
           # Export public and secret keys to files used by sign-file
           gpg --batch --yes --pinentry-mode loopback --passphrase=$GPG_PASSPHRASE \
               --export > signing_key.pub
-      
+              
+          echo "🔐 Export private key to file used by sign-file"
           gpg --batch --yes --pinentry-mode loopback --passphrase=$GPG_PASSPHRASE \
               --export-secret-keys > signing_key.sec
 
-          echo "🔐 Exported signing_key.pub and signing_key.sec"
+          ls -l signing_key.pub signing_key.sec || echo "❌ Key files missing"
       
       - name: Checkout code
         uses: actions/checkout@v4
