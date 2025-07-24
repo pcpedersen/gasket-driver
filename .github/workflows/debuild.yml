@@ -64,7 +64,7 @@ jobs:
             | xargs --no-run-if-empty sudo apt-get --download-only --reinstall -y
 
       - name: Cache APT packages
-        uses: awalsh128/cache-apt-pkgs-action@v1.2.0
+        uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           cache-name: full-apt-cache-${{ runner.os }}
       # ───────────────────────────────────────────────────────────────────────────          
