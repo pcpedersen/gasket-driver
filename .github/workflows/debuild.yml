@@ -28,22 +28,15 @@ jobs:
           echo "🔍 Attempting import:"
           gpg --batch --import private.key
 
-          echo "🔐 Export public key to file used by sign-file"
-          # Export public and secret keys to files used by sign-file
-          gpg --batch --yes --pinentry-mode loopback --passphrase=$GPG_PASSPHRASE \
-              --export > signing_key.pub
-              
-          echo "🔐 Export private key to file used by sign-file"
-          gpg --batch --yes --pinentry-mode loopback --passphrase=$GPG_PASSPHRASE \
-              --export-secret-keys > signing_key.sec
-
-          ls -l signing_key.pub signing_key.sec || echo "❌ Key files missing"
-
-          mv signing_key.pub $HOME/ 
-          mv signing_key.sec $HOME/ 
-
-          ls -l $HOME/signing_key.pub $HOME/signing_key.sec || echo "❌ Key files not moved to home"
-      
+      - name: Prepare kernel module signing keys
+        env:
+          RSA_MODULE_SIGNING_KEY: ${{ secrets.RSA_MODULE_SIGNING_KEY }}
+          RSA_MODULE_SIGNING_CERT: ${{ secrets.RSA_MODULE_SIGNING_CERT }}
+        run: |
+          echo "$RSA_MODULE_SIGNING_KEY" | base64 --decode > signing_key.pem
+          echo "$RSA_MODULE_SIGNING_CERT" | base64 --decode > signing_key.x509
+          ls -l signing_key.*
+    
       - name: Checkout code
         uses: actions/checkout@v4
         
