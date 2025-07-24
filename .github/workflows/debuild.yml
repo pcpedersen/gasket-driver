@@ -65,7 +65,7 @@ jobs:
       - name: Cache APT packages
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: ${{ steps.pkglist.outputs.pkgs }}
+          packages: ${{ steps.pkglist.outputs.packages }}
           version: full-apt-cache-${{ runner.os }}
       # ────────────────────────────────────────────────────────────────────────────────
 
