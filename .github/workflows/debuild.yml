@@ -18,14 +18,8 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           echo "$PRIVATE_GPG_KEY" | base64 --decode > private.key
-      
-          echo "🔍 First few lines of decoded key:"
           head -n 10 private.key
-      
-          echo "🔍 File size:"
           stat --format="%s bytes" private.key
-      
-          echo "🔍 Attempting import:"
           gpg --batch --import private.key
 
       - name: Prepare kernel module signing keys
@@ -33,21 +27,15 @@ jobs:
           RSA_MODULE_SIGNING_KEY: ${{ secrets.RSA_MODULE_SIGNING_KEY }}
           RSA_MODULE_SIGNING_CERT: ${{ secrets.RSA_MODULE_SIGNING_CERT }}
         run: |
-          echo "🔍 Decoding signing key:"
           echo "$RSA_MODULE_SIGNING_KEY" | base64 --decode > $HOME/signing_key.pem
-          echo "🔍 First few lines of signing key:"
           head -n 2 $HOME/signing_key.pem
-
-          echo "🔍 Decoding signing cert:"
           echo "$RSA_MODULE_SIGNING_CERT" | base64 --decode > $HOME/signing_key.x509
-          echo "🔍 First few lines of signing cert:"
           head -n 2 $HOME/signing_key.x509
-          
           ls -latr $HOME/signing_key.*
-    
+
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Install build dependencies from control file
         run: |
           sudo apt-get update
@@ -59,9 +47,27 @@ jobs:
           wget http://ftp.de.debian.org/debian/pool/main/d/dpkg-sig/dpkg-sig_0.13.1+nmu4_all.deb
           sudo apt install ./dpkg-sig_0.13.1+nmu4_all.deb
           rm ./dpkg-sig_0.13.1+nmu4_all.deb
+          
+      # ──────────────────── FULL APT CACHE SETUP ───────────────────────────────
+      - name: Gather installed package list
+        id: pkglist
+        run: |
+          pkgs=$(apt list --installed 2>/dev/null \
+                 | awk -F/ 'NR>1{print $1}' \
+                 | tr '\n' ' ')
+          echo "pkgs=$pkgs" >> $GITHUB_OUTPUT
 
-      - name: List all installed dependencies
-        run: apt list --installed
+      - name: Download all .debs into APT cache
+        run: |
+          sudo apt-get update
+          echo "${{ steps.pkglist.outputs.pkgs }}" \
+            | xargs --no-run-if-empty sudo apt-get --download-only --reinstall -y
+
+      - name: Cache APT packages
+        uses: awalsh128/cache-apt-pkgs-action@v1.2.0
+        with:
+          cache-name: full-apt-cache-${{ runner.os }}
+      # ───────────────────────────────────────────────────────────────────────────          
 
       - name: Build debian package
         run: debuild -us -uc -tc -b
@@ -72,7 +78,8 @@ jobs:
       - name: Sign the .deb file
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: dpkg-sig --sign builder --gpg-options "--batch --yes --passphrase=$GPG_PASSPHRASE --pinentry-mode loopback" ./*.deb
+        run: dpkg-sig --sign builder \
+             --gpg-options "--batch --yes --passphrase=$GPG_PASSPHRASE --pinentry-mode loopback" ./*.deb
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
