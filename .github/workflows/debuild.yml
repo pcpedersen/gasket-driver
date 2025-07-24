@@ -53,13 +53,13 @@ jobs:
       - name: Gather installed package list
         id: pkglist
         run: |
-          pkgs=$(apt list --installed 2>/dev/null | awk -F/ 'NR>1{print $1}' | tr '\n' ' ')
-          echo "packages=$pkgs" >> $GITHUB_OUTPUT
+          packages=$(apt list --installed 2>/dev/null | awk -F/ 'NR>1{print $1}' | tr '\n' ' ')
+          echo "packages=$packages" >> $GITHUB_OUTPUT
 
       - name: Download all .debs into APT cache
         run: |
           sudo apt-get update
-          echo "${{ steps.pkglist.outputs.pkgs }}" \
+          echo "${{ steps.pkglist.outputs.packages }}" \
             | xargs --no-run-if-empty sudo apt-get --reinstall --download-only install -y
 
       - name: Cache APT packages
@@ -78,8 +78,7 @@ jobs:
       - name: Sign the .deb file
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: dpkg-sig --sign builder \
-             -g "--batch --yes --passphrase=$GPG_PASSPHRASE --pinentry-mode loopback" ./*.deb
+        run: dpkg-sig --sign builder -g "--pinentry-mode loopback --batch --yes --passphrase=$GPG_PASSPHRASE" ./*.deb
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
