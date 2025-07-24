@@ -18,7 +18,7 @@ override_dh_auto_build:
 		if [ -f "$$KMOD" ]; then \
 			if [ -f "$(HOME)/signing_key.pem" ] && [ -f "$(HOME)/signing_key.x509" ]; then \
 			    echo "🔏 Signing $$KMOD"; \
-			    /usr/src/linux-headers-$(shell uname -r)/scripts/sign-file sha256 signing_key.pem signing_key.x509 $$KMOD || \
+			    /usr/src/linux-headers-$(shell uname -r)/scripts/sign-file sha256 $(HOME)/signing_key.pem $(HOME)/signing_key.x509 $$KMOD || \
 			    echo "❌ Signing failed for $$KMOD"; \
 			else \
 			    echo "⚠️ Signing keys not found; skipping signing."; \
