@@ -18,8 +18,6 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           echo "$PRIVATE_GPG_KEY" | base64 --decode > private.key
-          head -n 10 private.key
-          stat --format="%s bytes" private.key
           gpg --batch --import private.key
 
       - name: Prepare kernel module signing keys
@@ -28,10 +26,7 @@ jobs:
           RSA_MODULE_SIGNING_CERT: ${{ secrets.RSA_MODULE_SIGNING_CERT }}
         run: |
           echo "$RSA_MODULE_SIGNING_KEY" | base64 --decode > $HOME/signing_key.pem
-          head -n 2 $HOME/signing_key.pem
           echo "$RSA_MODULE_SIGNING_CERT" | base64 --decode > $HOME/signing_key.x509
-          head -n 2 $HOME/signing_key.x509
-          ls -latr $HOME/signing_key.*
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -47,27 +42,28 @@ jobs:
           wget http://ftp.de.debian.org/debian/pool/main/d/dpkg-sig/dpkg-sig_0.13.1+nmu4_all.deb
           sudo apt install ./dpkg-sig_0.13.1+nmu4_all.deb
           rm ./dpkg-sig_0.13.1+nmu4_all.deb
-          
-      # ──────────────────── FULL APT CACHE SETUP ───────────────────────────────
-      # Cache all installed APT packages properly
+
+      # ──────────────── FULL APT CACHE SETUP ──────────────────────────────
       - name: Gather installed package list
         id: pkglist
         run: |
           echo "packages=$(apt list --installed 2>/dev/null | awk -F/ 'NR>1{print $1}' | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
+      - name: Debug gathered package list
+        run: echo "Package list: ${{ steps.pkglist.outputs.packages }}"
+
       - name: Download all .debs into APT cache
         run: |
-          echo "Found packages: ${{ steps.pkglist.outputs.packages }}"
           sudo apt-get update
           echo "${{ steps.pkglist.outputs.packages }}" \
             | xargs --no-run-if-empty sudo apt-get --reinstall --download-only install -y
 
       - name: Cache APT packages
-        uses: awalsh128/cache-apt-pkgs-action@latest
+        uses: awalsh128/cache-apt-pkgs-action@v1.2.0
         with:
           packages: ${{ steps.pkglist.outputs.packages }}
           version: full-apt-cache-${{ runner.os }}
-      # ────────────────────────────────────────────────────────────────────────────────
+      # ────────────────────────────────────────────────────────────────────
 
       - name: Build debian package
         run: debuild -us -uc -tc -b
@@ -78,7 +74,8 @@ jobs:
       - name: Sign the .deb file
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: dpkg-sig --sign builder -g "--pinentry-mode loopback --batch --yes --passphrase=$GPG_PASSPHRASE" ./*.deb
+        run: |
+          dpkg-sig --sign builder -g "--pinentry-mode loopback --batch --yes --passphrase=$GPG_PASSPHRASE" ./*.deb
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
