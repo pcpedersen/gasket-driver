@@ -20,6 +20,11 @@ override_dh_auto_build:
 			    echo "🔏 Signing $$KMOD"; \
 			    /usr/src/linux-headers-$(shell uname -r)/scripts/sign-file sha256 $(HOME)/signing_key.pem $(HOME)/signing_key.x509 $$KMOD || \
 			    echo "❌ Signing failed for $$KMOD"; \
+
+			     # Copy signing certs into doc path
+			     mkdir -p debian/gasket-dkms/usr/share/doc/gasket-dkms
+		 	     cp $(HOME)/signing_key.x509 debian/gasket-dkms/usr/share/doc/gasket-dkms/signing_key.pem
+			     openssl x509 -in $(HOME)/signing_key.x509 -outform DER -out debian/gasket-dkms/usr/share/doc/gasket-dkms/signing_key.der
 			else \
 			    echo "⚠️ Signing keys not found; skipping signing."; \
 			fi; \
