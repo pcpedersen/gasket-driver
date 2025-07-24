@@ -49,25 +49,24 @@ jobs:
           rm ./dpkg-sig_0.13.1+nmu4_all.deb
           
       # ──────────────────── FULL APT CACHE SETUP ───────────────────────────────
+      # Cache all installed APT packages properly
       - name: Gather installed package list
         id: pkglist
         run: |
-          pkgs=$(apt list --installed 2>/dev/null \
-                 | awk -F/ 'NR>1{print $1}' \
-                 | tr '\n' ' ')
+          pkgs=$(apt list --installed 2>/dev/null | awk -F/ 'NR>1{print $1}' | tr '\n' ' ')
           echo "pkgs=$pkgs" >> $GITHUB_OUTPUT
 
       - name: Download all .debs into APT cache
         run: |
           sudo apt-get update
           echo "${{ steps.pkglist.outputs.pkgs }}" \
-            | xargs --no-run-if-empty sudo apt-get --download-only --reinstall -y
+            | xargs --no-run-if-empty sudo apt-get --reinstall --download-only install -y
 
       - name: Cache APT packages
-        uses: awalsh128/cache-apt-pkgs-action@latest
+        uses: awalsh128/cache-apt-pkgs-action@v1.2.0
         with:
           cache-name: full-apt-cache-${{ runner.os }}
-      # ───────────────────────────────────────────────────────────────────────────          
+      # ────────────────────────────────────────────────────────────────────────────────
 
       - name: Build debian package
         run: debuild -us -uc -tc -b
