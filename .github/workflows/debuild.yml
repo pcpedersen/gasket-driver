@@ -54,7 +54,7 @@ jobs:
         id: pkglist
         run: |
           pkgs=$(apt list --installed 2>/dev/null | awk -F/ 'NR>1{print $1}' | tr '\n' ' ')
-          echo "pkgs=$pkgs" >> $GITHUB_OUTPUT
+          echo "packages=$pkgs" >> $GITHUB_OUTPUT
 
       - name: Download all .debs into APT cache
         run: |
@@ -65,7 +65,8 @@ jobs:
       - name: Cache APT packages
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          cache-name: full-apt-cache-${{ runner.os }}
+          packages: ${{ steps.pkglist.outputs.pkgs }}
+          version: full-apt-cache-${{ runner.os }}
       # ────────────────────────────────────────────────────────────────────────────────
 
       - name: Build debian package
