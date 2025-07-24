@@ -33,9 +33,17 @@ jobs:
           RSA_MODULE_SIGNING_KEY: ${{ secrets.RSA_MODULE_SIGNING_KEY }}
           RSA_MODULE_SIGNING_CERT: ${{ secrets.RSA_MODULE_SIGNING_CERT }}
         run: |
-          echo "$RSA_MODULE_SIGNING_KEY" | base64 --decode > signing_key.pem
-          echo "$RSA_MODULE_SIGNING_CERT" | base64 --decode > signing_key.x509
-          ls -l signing_key.*
+          echo "🔍 Decoding signing key:"
+          echo "$RSA_MODULE_SIGNING_KEY" | base64 --decode > $HOME/signing_key.pem
+          echo "🔍 First few lines of signing key:"
+          head -n 2 $HOME/signing_key.pem
+
+          echo "🔍 Decoding signing cert:"
+          echo "$RSA_MODULE_SIGNING_CERT" | base64 --decode > $HOME/signing_key.x509
+          echo "🔍 First few lines of signing cert:"
+          head -n 2 $HOME/signing_key.x509
+          
+          ls -latr $HOME/signing_key.*
     
       - name: Checkout code
         uses: actions/checkout@v4
@@ -51,6 +59,9 @@ jobs:
           wget http://ftp.de.debian.org/debian/pool/main/d/dpkg-sig/dpkg-sig_0.13.1+nmu4_all.deb
           sudo apt install ./dpkg-sig_0.13.1+nmu4_all.deb
           rm ./dpkg-sig_0.13.1+nmu4_all.deb
+
+      - name: List all installed dependencies
+        run: apt list --installed
 
       - name: Build debian package
         run: debuild -us -uc -tc -b
