@@ -27,3 +27,23 @@ sudo apt install -y gasket-dkms
 
 echo "✅ Installation complete. DKMS status:"
 dkms status | grep gasket || echo "Module not yet built — run 'sudo dkms autoinstall' if needed."
+
+echo "🔐 Checking Secure Boot status..."
+if mokutil --sb-state | grep -q 'SecureBoot enabled'; then
+  CERT_PATH="/usr/share/doc/gasket-dkms/signing_key.der"
+  if [ -f "$CERT_PATH" ]; then
+    echo "📎 Found signing certificate at $CERT_PATH"
+    echo "🚀 Automatically requesting MOK enrollment..."
+
+    # Request enrollment with a pre-defined password
+    ENROLL_PASSWORD=$(cat /etc/mok-password)
+    echo "$ENROLL_PASSWORD" | sudo mokutil --import $CERT_PATH
+
+    echo "✅ Key import requested. You must reboot and complete enrollment in the MOK Manager."
+    echo "🔒 Use password: $ENROLL_PASSWORD"
+  else
+    echo "❌ Certificate not found at expected location: $CERT_PATH"
+  fi
+else
+  echo "🔓 Secure Boot is disabled — no key enrollment needed."
+fi
