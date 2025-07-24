@@ -50,7 +50,8 @@ jobs:
           echo "packages=$(apt list --installed 2>/dev/null | awk -F/ 'NR>1{print $1}' | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
       - name: Debug gathered package list
-        run: echo "Package list: ${{ steps.pkglist.outputs.packages }}"
+        run: |
+          echo "Package list: ${{ steps.pkglist.outputs.packages }}"
 
       - name: Download all .debs into APT cache
         run: |
@@ -59,7 +60,7 @@ jobs:
             | xargs --no-run-if-empty sudo apt-get --reinstall --download-only install -y
 
       - name: Cache APT packages
-        uses: awalsh128/cache-apt-pkgs-action@v1.2.0
+        uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: ${{ steps.pkglist.outputs.packages }}
           version: full-apt-cache-${{ runner.os }}
