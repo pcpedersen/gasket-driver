@@ -16,9 +16,10 @@ override_dh_auto_build:
 	# Signing each .ko module individually
 	@for KMOD in $(CURDIR)/src/*.ko; do \
 		if [ -f "$$KMOD" ]; then \
-			if [ -f "$(HOME)/signing_key.sec" ] && [ -f "$(HOME)/signing_key.pub" ]; then \
+			if [ -f "$(HOME)/signing_key.pem" ] && [ -f "$(HOME)/signing_key.x509" ]; then \
 			    echo "🔏 Signing $$KMOD"; \
-			    /usr/src/linux-headers-$(shell uname -r)/scripts/sign-file sha256 signing_key.sec signing_key.pub $$KMOD; \
+			    /usr/src/linux-headers-$(shell uname -r)/scripts/sign-file sha256 signing_key.pem signing_key.x509 $$KMOD || \
+			    echo "❌ Signing failed for $$KMOD"; \
 			else \
 			    echo "⚠️ Signing keys not found; skipping signing."; \
 			fi; \
